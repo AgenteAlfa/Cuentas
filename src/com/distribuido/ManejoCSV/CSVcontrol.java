@@ -1,17 +1,21 @@
 package com.distribuido.ManejoCSV;
 
 
+import com.distribuido.BaseDatos.BDConfiguracion;
+
 import javax.naming.Context;
 import java.io.*;
 import java.util.Random;
 
 public class CSVcontrol {
 
+    int index;
     private Casilla CInicial,CApuntada;
     private int[] Puntero;
 
     public CSVcontrol()
     {
+        index = BDConfiguracion.MIN_INDEX;
         Configuracion.Inicializar();
         Puntero = new int[] {0,0};
         CInicial = null;
@@ -38,6 +42,25 @@ public class CSVcontrol {
 
     }
 
+    public synchronized boolean Transferencia(String de , String para , String Monto)
+    {
+        Casilla DE = BuscarCasilla(de);
+        Casilla PARA = BuscarCasilla(para);
+        if (DE != null && PARA != null && Integer.parseInt(DE.getDer().getData()) > Integer.parseInt(Monto))
+        {
+            DE.getDer().setData(String.valueOf(Integer.parseInt(DE.getDer().getData()) - Integer.parseInt(Monto)));
+            PARA.getDer().setData
+                    (String.valueOf(Integer.parseInt(PARA.getDer().getData()) + Integer.parseInt(Monto)));
+        }
+
+
+
+
+
+        return false;
+
+    }
+
     public void Generar(int T1,int T2,int N)
     {
         Casilla temp = null;
@@ -47,9 +70,36 @@ public class CSVcontrol {
             temp = AgregarLinea(temp,GenerarPalabra(T1),GenerarNumero(T2));
         }
     }
+
+    public String BuscarCuenta(String S)
+    {
+        Casilla C = CInicial;
+        while (C != null)
+        {
+            if (C.getData().equals(S))
+                return C.getDer().getData();
+            else
+                C = C.getAba();
+        }
+        return "-1";
+    }
+    public Casilla BuscarCasilla(String S)
+    {
+        Casilla C = CInicial;
+        while (C != null)
+        {
+            if (C.getData().equals(S))
+                break;
+            else
+                C = C.getAba();
+        }
+        return C;
+    }
+
     private String GenerarPalabra(int N)
     {
         StringBuilder builder = new StringBuilder();
+        /*
         Random R = new Random();
         for (int i = 0; i < N; i++)
         {
@@ -59,6 +109,10 @@ public class CSVcontrol {
             else
                 builder.append(R.nextInt(10));
         }
+        */
+        String S = Integer.toHexString(index++);
+        builder.append("0".repeat(Math.max(0, N - S.length())));
+        builder.append(S);
         return builder.toString();
     }
     private String GenerarNumero(int N)
