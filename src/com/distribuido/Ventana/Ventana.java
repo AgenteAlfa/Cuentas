@@ -1,13 +1,9 @@
 package com.distribuido.Ventana;
 
-import com.distribuido.BaseDatos.BaseDatos;
-import com.distribuido.Distribuidor.Distribuidor;
-import com.distribuido.ManejoCSV.CSVcontrol;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 public class Ventana extends JFrame{
     int ancho=600;
@@ -19,6 +15,8 @@ public class Ventana extends JFrame{
 
     JButton BCalcular = new JButton();
     JProgressBar BProgreso = new JProgressBar();
+    //a es el número de transacciones que
+    int numt =1000;
 //    JLabel R = new JLabel();
 
     public Ventana(){
@@ -27,7 +25,8 @@ public class Ventana extends JFrame{
         this.setContentPane(fondo);
         fondo.setLayout(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
+        //x es el número de transacciones hechas
+        int x=0;
         init();
 
         setVisible(true);
@@ -40,14 +39,16 @@ public class Ventana extends JFrame{
                 //--CAMPO DE ACCIÓN DEL BOTÓN CALCULAR
                 //-----------------------------
 
-                //Obtiene los datos de la ventana
-                // a es el numero de transacciones que se desean generar
-                double a= Double.parseDouble(JTextFieldA.getText());
-
+                // numt se obtiene de la ventana, es el numero de transacciones que se desean generar
+                numt = Integer.parseInt(JTextFieldA.getText());
+                //-----------------------------
 
                 //Inicia el calculo
 
                 // aqui se coloca la función.
+                //x es el número de transacciones hechas, la funcion aumenta el progreso con respecto a numt
+                AumentarProgreso(x);
+
 
                 //------------------------------------
             }
@@ -63,9 +64,9 @@ public class Ventana extends JFrame{
     }
 
  */
-    public void AumentarProgreso()
+    public void AumentarProgreso(double x)
     {
-        // BProgreso.setValue(BProgreso.getValue());
+        BProgreso.setValue((int) ((x/numt)*100));
     }
 
 
@@ -100,7 +101,7 @@ public class Ventana extends JFrame{
         BCalcular.setMnemonic('c');//tecla para hacerlo funcionar ALT+c
         add(BCalcular);
         //ProgressBar
-        BProgreso.setBounds(150,420,350,5);
+        BProgreso.setBounds(110,330,350,4);
         add(BProgreso);
         //Label R
         // R.setText("Resultado:");
