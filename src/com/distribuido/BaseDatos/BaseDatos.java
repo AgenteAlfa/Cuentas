@@ -43,7 +43,7 @@ public class BaseDatos extends Comunicacion implements Runnable{
         while (Activo && (Orden = LeerOrden()) != BDConfiguracion.ORDEN_APAGAR )
         {
             Mensaje = EscucharMensaje();
-            System.out.println("ORDEN " + Orden);
+            //System.out.println("ORDEN " + Orden);
             switch (Orden)
             {
                 case BDConfiguracion.ORDEN_DETENER:
@@ -55,7 +55,7 @@ public class BaseDatos extends Comunicacion implements Runnable{
                 case BDConfiguracion.ORDEN_LEER:
                 case BDConfiguracion.ORDEN_ESCRIBIR:
                     mConsultas.Encolar(Mensaje.split(","));
-                    System.out.println("Enviando confirmacion");
+                    //System.out.println("Enviando confirmacion");
                     Confirmar("-10000");
                     break;
             }
@@ -81,7 +81,7 @@ public class BaseDatos extends Comunicacion implements Runnable{
                 {
                     if (mConsultas.Cola.size() > 0) {
                         Transaccion C = mConsultas.Extraer();
-                        System.out.println("Desencolando datos");
+                        //System.out.println("Desencolando datos");
                         if (C.Tipo.equals("A")) {
                             Data.Transferencia(C.De, C.Para, C.Monto);
                         }
@@ -90,13 +90,10 @@ public class BaseDatos extends Comunicacion implements Runnable{
                                 C.Tipo,
                                 C.Codigo,
                                 C.De,
-                                Data.BuscarCuenta(C.De),
+                                Data.BuscarMontoCuenta(C.De),
                                 C.Tipo.equals("A")? C.Para : "0",
-                                C.Tipo.equals("A")? Data.BuscarCuenta(C.Para) : "0"
+                                C.Tipo.equals("A")? Data.BuscarMontoCuenta(C.Para) : "0"
                         );
-
-
-                        System.out.println("BD : " +  r.toString());
                         Responder(r.toString());
                     }
                 }
@@ -119,10 +116,10 @@ public class BaseDatos extends Comunicacion implements Runnable{
         {
 
             Cola.add(new Transaccion(data));
-            System.out.println("Encolando datos... " + Cola.size());
+            //System.out.println("Encolando datos... " + Cola.size());
         }
         public synchronized Transaccion Extraer(){
-            System.out.println(Cola.size());
+            //System.out.println(Cola.size());
             return Cola.poll();
         }
 

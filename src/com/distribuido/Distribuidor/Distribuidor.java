@@ -74,20 +74,12 @@ public class Distribuidor {
 
     }
 
-    private void VerificarTodos() {
-        //System.out.println("D: Esperando verificacion");
-        for (DBD datos : BDs) {
-
-            datos.EsperarConfirmacion();
-            //System.out.println("Verificado");
-        }
-    }
 
     private class Hilo_Esperador extends Thread //Espera a las BD
     {
 
         private void Apagar() {
-            //System.out.println("ESPERADOR : DEJO DE ESPERAR DISTRIBUIDORES");
+            System.out.println("ESPERADOR : DEJO DE ESPERAR DISTRIBUIDORES");
             Encendido = false;
         }
 
@@ -96,7 +88,7 @@ public class Distribuidor {
         @Override
         public void run() {
             while (Encendido) {
-                //System.out.println("Coordinador -> Estoy esperando distribuidores");
+                System.out.println("Coordinador -> Estoy esperando distribuidores");
                 try {
                     ;
                     BDs.add(new DBD(SSOrdenador.accept(), SSRespondedor.accept()));
@@ -105,7 +97,7 @@ public class Distribuidor {
                     // e.printStackTrace();
                 }
             }
-            //System.out.println("Yo ya termine -> ESPERADOR");
+            System.out.println("Yo ya termine -> ESPERADOR");
         }
     }
 
@@ -132,7 +124,7 @@ public class Distribuidor {
                     // e.printStackTrace();
                 }
             }
-            //System.out.println("Yo ya termine -> ESPERADOR");
+            System.out.println("Yo ya termine -> ESPERADOR");
         }
     }
 
@@ -142,7 +134,7 @@ public class Distribuidor {
         private void Apagar() {
             Encendido = false;
         }
-
+        boolean letrero = true;
         private boolean Encendido = true;
 
         @Override
@@ -150,19 +142,27 @@ public class Distribuidor {
             System.out.println("Empezo el hilo distribuidor");
             while (Encendido) {
                 try {
-                    sleep(100);
+                    sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 for (DCliente cliente : Clientes) {
                     if (cliente.Pendiente)
                     {//Hay que revisar si hay una respuesta lista
-                        System.out.println("Hay un cliente esperando");
+
                         if (cliente.Respuesta != null) {
                             cliente.Enviar(cliente.Respuesta);
                             cliente.Pendiente = false;
                             cliente.Respuesta = null;
                             cliente.CodigoSolicitud = null;
+                            letrero = true;
+                        }
+                        else //if (letrero)
+                        {
+
+                            System.out.println("Hay un cliente " + cliente.CodigoSolicitud +  " esperando y no hay respuesta");
+                            System.out.println("Tareas pendientes : " + ColaClientes.size());
+                            letrero = false;
                         }
                     }
                     else
@@ -170,14 +170,14 @@ public class Distribuidor {
                         if (cliente.Disponible())
                         {
                             String cadena = cliente.Leer();
-                            System.out.println("Entando..." + cadena);
+                            System.out.println("Entrando..." + cadena);
                             Transaccion t = new Transaccion(cadena);
                             ColaClientes.add(t);
                             cliente.CodigoSolicitud = t.Codigo;
                             cliente.Pendiente = true;
                             cliente.Lectura = t.Tipo.equals("L");
                             cliente.Respuesta = null;
-                            System.out.println("Un cliente fue atendido");
+                            System.out.println("Un cliente fue agregado a la cola");
                         }
                     }
                 }
@@ -190,7 +190,7 @@ public class Distribuidor {
     {
 
         private void Apagar() {
-            //System.out.println("ESPERADOR : DEJO DE ESPERAR DISTRIBUIDORES");
+            System.out.println("ESPERADOR : DEJO DE ESPERAR DISTRIBUIDORES");
             Encendido = false;
         }
 
@@ -211,7 +211,9 @@ public class Distribuidor {
                 for (int i = 1; i < BDs.size(); i++) {
                     igual = mResp[i - 1].toString().equals(mResp[i].toString());
                 }
-                if (!igual){ System.out.println("CORRUPCION DE DATOS");  return;}
+                if (!igual){
+                    System.out.println("CORRUPCION DE DATOS");
+                    return;}
 
                 for (DCliente c : Clientes) {
                     if (mResp[0].Codigo.equals(c.CodigoSolicitud))
@@ -248,6 +250,7 @@ public class Distribuidor {
                         assert transaccion != null;
                         if (transaccion.Tipo.equals("L"))
                         {
+                            System.out.println("Enviado a BD " + transaccion.Codigo);
                             bd.Ordenar(BDConfiguracion.ORDEN_ESCRIBIR,transaccion.toString());
                             ColaClientes.poll();
                         }
