@@ -1,6 +1,7 @@
 package com.distribuido.Ventana;
 
 import com.distribuido.BaseDatos.BaseDatos;
+import com.distribuido.Cliente.Cliente;
 import com.distribuido.Distribuidor.Distribuidor;
 import com.distribuido.ManejoCSV.CSVcontrol;
 import javax.swing.*;
@@ -12,6 +13,7 @@ import java.io.IOException;
 public class Ventana extends JFrame{
     int ancho=600;
     int alto=400;
+    int iesimo = 0;
     FondoPanel fondo = new FondoPanel();
     //Campos para llenar
     JLabel A = new JLabel();
@@ -20,8 +22,9 @@ public class Ventana extends JFrame{
     JButton BCalcular = new JButton();
     JProgressBar BProgreso = new JProgressBar();
 //    JLabel R = new JLabel();
+    Distribuidor mDistribuidor;
 
-    public Ventana(){
+    public Ventana() throws IOException {
 
         setSize(ancho, alto);
         this.setContentPane(fondo);
@@ -32,6 +35,9 @@ public class Ventana extends JFrame{
 
         setVisible(true);
 
+        mDistribuidor = new Distribuidor(this);
+        mDistribuidor.Esperar();
+
         //--ACCIÓN DEL BOTÓN
 
         ActionListener calcula=new ActionListener() {
@@ -40,9 +46,10 @@ public class Ventana extends JFrame{
                 //--CAMPO DE ACCIÓN DEL BOTÓN CALCULAR
                 //-----------------------------
 
+                mDistribuidor.Empezar();
                 //Obtiene los datos de la ventana
                 // a es el numero de transacciones que se desean generar
-                double a= Double.parseDouble(JTextFieldA.getText());
+
 
 
                 //Inicia el calculo
@@ -56,16 +63,9 @@ public class Ventana extends JFrame{
         BCalcular.addActionListener(calcula);
 
     }
-
-/*    public void SetRespuesta(String S)
-    {
-        R.setText("Resultado: " + S);
-    }
-
- */
     public void AumentarProgreso()
     {
-        // BProgreso.setValue(BProgreso.getValue());
+        JTextFieldA.setText(Integer.toString(++iesimo));
     }
 
 
@@ -73,7 +73,11 @@ public class Ventana extends JFrame{
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Ventana().setVisible(true);
+                try {
+                    new Ventana().setVisible(true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -94,7 +98,7 @@ public class Ventana extends JFrame{
         add(JTextFieldA);
 
         //Boton calcular
-        BCalcular.setText("Generar");
+        BCalcular.setText("Empezar a trabajar");
         BCalcular.setBounds(210,PY2,150,30);
         BCalcular.setFont(new Font("Arial",Font.BOLD,20));
         BCalcular.setMnemonic('c');//tecla para hacerlo funcionar ALT+c

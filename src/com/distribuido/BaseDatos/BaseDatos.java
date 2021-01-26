@@ -6,10 +6,6 @@ import com.distribuido.ManejoCSV.CSVcontrol;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class BaseDatos extends Comunicacion implements Runnable{
@@ -44,11 +40,10 @@ public class BaseDatos extends Comunicacion implements Runnable{
         int Orden;
         String Mensaje;
 
-        while ( (Orden = LeerOrden()) != BDConfiguracion.ORDEN_APAGAR )
+        while (Activo && (Orden = LeerOrden()) != BDConfiguracion.ORDEN_APAGAR )
         {
-
             Mensaje = EscucharMensaje();
-            //System.out.println("ORDEN " + Orden);
+            System.out.println("ORDEN " + Orden);
             switch (Orden)
             {
                 case BDConfiguracion.ORDEN_DETENER:
@@ -60,7 +55,7 @@ public class BaseDatos extends Comunicacion implements Runnable{
                 case BDConfiguracion.ORDEN_LEER:
                 case BDConfiguracion.ORDEN_ESCRIBIR:
                     mConsultas.Encolar(Mensaje.split(","));
-                    //System.out.println("Enviando confirmacion");
+                    System.out.println("Enviando confirmacion");
                     Confirmar("-10000");
                     break;
             }
@@ -82,39 +77,30 @@ public class BaseDatos extends Comunicacion implements Runnable{
         public void run() {
             {
 
-
                while(Encendido)
                 {
                     if (mConsultas.Cola.size() > 0) {
-                        Consulta C = mConsultas.Extraer();
-                        //System.out.println("Desencolando datos");
-                        StringBuilder builder = new StringBuilder(C.Tipo);
-                        builder.append(",");
-                        builder.append(C.Codigo);
-                        builder.append(",");
-                        builder.append(C.De);
-                        builder.append(",");
-                        //Monto
-                        if (C.Tipo.equals("L"))
-                            builder.append(Data.BuscarCuenta(C.De));
-                        else
-                        {
-                            Data.Transferencia(C.De,C.Para,C.Monto);
-
-                            builder.append(Data.BuscarCuenta(C.De));
-                            builder.append(",");
-
-                            builder.append(C.Para);
-                            builder.append(",");
-                            builder.append(Data.BuscarCuenta(C.Para));
-                            builder.append(",");
+                        Transaccion C = mConsultas.Extraer();
+                        System.out.println("Desencolando datos");
+                        if (C.Tipo.equals("A")) {
+                            Data.Transferencia(C.De, C.Para, C.Monto);
                         }
 
-                        //System.out.println("BD : " +  builder.toString());
-                        Responder(builder.toString());
+                        Respuesta r = new Respuesta(
+                                C.Tipo,
+                                C.Codigo,
+                                C.De,
+                                Data.BuscarCuenta(C.De),
+                                C.Tipo.equals("A")? C.Para : "0",
+                                C.Tipo.equals("A")? Data.BuscarCuenta(C.Para) : "0"
+                        );
+
+
+                        System.out.println("BD : " +  r.toString());
+                        Responder(r.toString());
                     }
                 }
-                //Responder("-1");
+                Responder("-1");
             }
         }
     }
@@ -123,7 +109,7 @@ public class BaseDatos extends Comunicacion implements Runnable{
     private class Consultas
     {
 
-        public LinkedBlockingDeque<Consulta> Cola;
+        public LinkedBlockingDeque<Transaccion> Cola;
 
         public Consultas()
         {
@@ -132,30 +118,16 @@ public class BaseDatos extends Comunicacion implements Runnable{
         public void Encolar(String ... data)
         {
 
-            Cola.add(new Consulta(data));
-            //System.out.println("Encolando datos... " + Cola.size());
+            Cola.add(new Transaccion(data));
+            System.out.println("Encolando datos... " + Cola.size());
         }
-        public synchronized Consulta Extraer(){
-            //System.out.println(Cola.size());
+        public synchronized Transaccion Extraer(){
+            System.out.println(Cola.size());
             return Cola.poll();
         }
 
 
     }
 
-    private class Consulta {
-        public final String Tipo;
-        public final String Codigo;
-        public final String De;
-        public final String Para;
-        public final String Monto;
-        public Consulta(String ... data) {
-            Tipo = data[0];
-            Codigo = data[1];
-            De = data[2];
-            Para = data[3];
-            Monto = data[4];
-        }
-    }
 
 }

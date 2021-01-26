@@ -42,20 +42,16 @@ public class CSVcontrol {
 
     }
 
-    public synchronized boolean Transferencia(String de , String para , String Monto)
+    public synchronized boolean Transferencia(String de , String para , int Monto)
     {
         Casilla DE = BuscarCasilla(de);
         Casilla PARA = BuscarCasilla(para);
-        if (DE != null && PARA != null && Integer.parseInt(DE.getDer().getData()) > Integer.parseInt(Monto))
+        if (DE != null && PARA != null && Integer.parseInt(DE.getDer().getData()) > (Monto))
         {
-            DE.getDer().setData(String.valueOf(Integer.parseInt(DE.getDer().getData()) - Integer.parseInt(Monto)));
+            DE.getDer().setData(String.valueOf(Integer.parseInt(DE.getDer().getData()) - (Monto)));
             PARA.getDer().setData
-                    (String.valueOf(Integer.parseInt(PARA.getDer().getData()) + Integer.parseInt(Monto)));
+                    (String.valueOf(Integer.parseInt(PARA.getDer().getData()) + (Monto)));
         }
-
-
-
-
 
         return false;
 

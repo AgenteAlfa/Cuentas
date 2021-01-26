@@ -9,6 +9,7 @@ public class Comunicacion {
 
     private final Socket SOrden;
     private final Socket SRespuesta;
+
     private ObjectInputStream OISo;
     private ObjectOutputStream OOSo;
 

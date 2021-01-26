@@ -12,20 +12,5 @@ public class Main {
     public static void main(String[] args) {
 
 
-        try {
-            Distribuidor D = new Distribuidor();
-            D.Esperar();
-            System.out.println("Estoy esperando, presiona una tecla");
-
-            BaseDatos BD = new BaseDatos();
-            BD.Iniciar();
-
-            D.Empezar();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
     }
 }
